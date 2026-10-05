@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Game Testing Lab</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#0b1020;color:#fff;min-height:100vh;display:grid;place-items:center;padding:16px}.app{width:min(900px,100%);background:#121a2e;border:1px solid #273252;border-radius:20px;overflow:hidden;box-shadow:0 20px 60px #0008}.top{padding:18px 22px;border-bottom:1px solid #273252;display:flex;justify-content:space-between;align-items:center}.top h1{font-size:21px;margin:0}.badge{font-size:12px;background:#163b2a;color:#62e6a1;padding:7px 10px;border-radius:20px}.panel{padding:22px}.game{height:390px;position:relative;background:linear-gradient(#18264a,#0e1529);border-radius:16px;border:1px solid #334268;overflow:hidden}.target{position:absolute;width:62px;height:62px;border-radius:50%;display:none;place-items:center;background:#ff4d6d;border:5px solid #ffd1d9;cursor:pointer;box-shadow:0 0 25px #ff4d6d}.hud{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:15px}.stat{background:#1a2440;padding:10px 14px;border-radius:10px;font-size:14px}.controls{display:flex;gap:10px;margin-top:15px;flex-wrap:wrap}.btn{border:0;border-radius:10px;padding:12px 16px;background:#4f67ff;color:white;font-weight:bold;cursor:pointer}.btn.secondary{background:#273252}.result{margin-top:15px;background:#0e1529;border-radius:12px;padding:14px;color:#b9c4df;line-height:1.5}.success{color:#62e6a1}.fail{color:#ff879b}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top"><h1>🎮 Game Testing Lab</h1><span class="badge">TEST MODE</span></header>
+<div class="panel">
+<div class="hud">
+<div class="stat">Score: <b id="score">0</b></div>
+<div class="stat">Misses: <b id="misses">0</b></div>
+<div class="stat">Time: <b id="time">30</b>s</div>
+<div class="stat">Accuracy: <b id="accuracy">100</b>%</div>
+</div>
+<div id="game" class="game">
+<div id="target" class="target">+</div>
+</div>
+<div class="controls">
+<button class="btn" id="start">Start Test</button>
+<button class="btn secondary" id="reset">Reset</button>
+</div>
+<div class="result" id="result">Click <b>Start Test</b>. Hit the red targets as quickly as possible. This mini-game demonstrates a simple game-testing/QA project.</div>
+</div>
+</div>
+<script>
+const game=document.getElementById('game'),target=document.getElementById('target');
+const scoreEl=document.getElementById('score'),missEl=document.getElementById('misses'),timeEl=document.getElementById('time'),accEl=document.getElementById('accuracy'),result=document.getElementById('result');
+let score=0,misses=0,time=30,running=false,timer=null,attempts=0;
+function accuracy(){let a=attempts?Math.round(score/attempts*100):100;accEl.textContent=a}
+function spawn(){if(!running)return;let maxX=game.clientWidth-75,maxY=game.clientHeight-75;target.style.left=Math.max(5,Math.random()*maxX)+'px';target.style.top=Math.max(5,Math.random()*maxY)+'px';target.style.display='grid'}
+target.onclick=()=>{if(!running)return;score++;attempts++;scoreEl.textContent=score;accuracy();spawn()}
+game.onclick=e=>{if(!running||e.target===target)return;misses++;attempts++;missEl.textContent=misses;accuracy()}
+function finish(){running=false;clearInterval(timer);target.style.display='none';let a=attempts?Math.round(score/attempts*100):0;result.innerHTML=`<b>Test completed!</b><br>Score: ${score} | Misses: ${misses} | Accuracy: ${a}%. <span class="${a>=70?'success':'fail'}">${a>=70?'PASS — Good test performance.':'FAIL — Try again and improve accuracy.'}</span>`}
+document.getElementById('start').onclick=()=>{if(running)return;score=0;misses=0;time=30;attempts=0;running=true;scoreEl.textContent=0;missEl.textContent=0;timeEl.textContent=30;accuracy();result.textContent='Test running... Hit as many targets as you can.';spawn();timer=setInterval(()=>{time--;timeEl.textContent=time;if(time<=0)finish()},1000)}
+document.getElementById('reset').onclick=()=>{running=false;clearInterval(timer);score=0;misses=0;time=30;attempts=0;scoreEl.textContent=0;missEl.textContent=0;timeEl.textContent=30;accuracy();target.style.display='none';result.textContent='Test reset. Click Start Test to begin.'}
+</script>
+</body>
+</html>
